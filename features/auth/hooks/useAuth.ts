@@ -1,17 +1,40 @@
-// features/auth/hooks/useAuth.ts
-import { authService } from "../services/auth.service";
+"use client";
+
+import { useEffect } from "react";
 import { useAuthStore } from "../store/auth.store";
+import { privateApi } from "@/lib";
+import { authService } from "../services/auth.service";
+
 export const useAuth = () => {
-  const setUser = useAuthStore((s: any) => s.setUser);
+  const {
+    user,
+    accessToken,
+    isAuthenticated,
+    isLoading,
+    setAuth,
+    setLoading,
+    setUser,
+    logout,
+  } = useAuthStore();
 
-  const login = async (e: any) => {
-    e.preventDefault();
-    const res = await authService.login({
-      email: "test@gmail.com",
-      password: "123",
-    });
-    setUser(res.data.user);
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const { data } = await authService.getProfile();
+      setUser(data);
+    } catch (error) {
+      logout();
+    } finally {
+      setLoading(false);
+    }
   };
-
-  return { login };
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+  return {
+    user,
+    accessToken,
+    isAuthenticated,
+    isLoading,
+  };
 };

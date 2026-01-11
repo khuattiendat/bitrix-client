@@ -1,10 +1,43 @@
-// features/auth/types/auth.type.ts
 export interface LoginPayload {
   email: string;
   password: string;
+}
+export interface OrganizationUser {
+  id: number;
+  name: string;
+  organizationRole: string;
 }
 export interface User {
   id: string;
   name: string;
   email: string;
+  fullName: string;
+  dateOfBirth: string | null;
+  systemRole: string;
+  avatar?: string;
+  organizations: OrganizationUser[];
+}
+export interface AuthState {
+  user: User | null;
+  accessToken: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+
+  setUser: (user: User) => void;
+  setAuth: (user: User, accessToken: string) => void;
+  logout: () => void;
+  setLoading: (loading: boolean) => void;
+}
+export interface AuthResponse {
+  data: {
+    user: User;
+    tokens: {
+      accessToken: string;
+      refreshToken: string;
+    };
+  };
+}
+export enum SYSTEM_ROLE {
+  ADMIN = "admin",
+  NONE = "none",
 }

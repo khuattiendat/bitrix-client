@@ -1,9 +1,18 @@
-// features/auth/services/auth.service.ts
-import { api } from "@/shared/axios";
+import { privateApi, publicApi } from "@/lib";
 import { LoginPayload } from "../types/auth.type";
 
 export const authService = {
-  login: (data: LoginPayload) => api.post("/auth/login", data),
+  async login(payload: LoginPayload) {
+    const { data } = await publicApi.post("/api/auth/sign-in", { ...payload });
+    return data;
+  },
 
-  logout: () => api.post("/auth/logout"),
+  async getProfile() {
+    const { data } = await privateApi.get("/api/auth/profile");
+    return data;
+  },
+
+  async logout() {
+    return await privateApi.post("/auth/logout");
+  },
 };
