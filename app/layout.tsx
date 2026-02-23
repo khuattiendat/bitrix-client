@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "antd/dist/reset.css";
 import "./globals.css";
+import { NuqsAdapter } from "nuqs/adapters/react";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -31,7 +32,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AntdRegistry>{children}</AntdRegistry>
+        <AntdRegistry>
+          <NuqsAdapter>{children}</NuqsAdapter>
+        </AntdRegistry>
       </body>
     </html>
   );

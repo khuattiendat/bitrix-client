@@ -1,3 +1,5 @@
+import { OrganizationMemberRole } from "@/shared/enums/organization.enum";
+
 export interface LoginPayload {
   email: string;
   password: string;
@@ -5,11 +7,10 @@ export interface LoginPayload {
 export interface OrganizationUser {
   id: number;
   name: string;
-  organizationRole: string;
+  organizationRole: keyof typeof OrganizationMemberRole;
 }
 export interface User {
   id: string;
-  name: string;
   email: string;
   fullName: string;
   dateOfBirth: string | null;

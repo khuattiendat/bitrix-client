@@ -57,7 +57,7 @@ const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
           collapsed={collapsed}
         >
           <div className="h-16 text-2xl flex justify-between items-center w-full">
-            <span>Logo</span>
+            <div className="text-center w-full font-bold uppercase">Admin</div>
           </div>
           <Menu
             theme="light"
@@ -79,7 +79,7 @@ const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
               }}
             />
           </Header>
-          <Content className="">{children}</Content>
+          <Content className="p-4">{children}</Content>
         </Layout>
       </Layout>
     </AdminProvider>
