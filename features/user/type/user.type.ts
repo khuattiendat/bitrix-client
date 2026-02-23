@@ -7,3 +7,15 @@ export interface AllUsersResponse {
     meta: MetaData;
   };
 }
+export interface CreateUserRequest {
+  fullName: string;
+  email: string;
+  dateOfBirth: string;
+  password: string;
+  organizations: { id: number; organizationRole: string }[];
+}
+export interface CreateUserResponse {
+  data: User;
+  message: string;
+  success: boolean;
+}

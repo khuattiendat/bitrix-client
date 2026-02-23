@@ -20,12 +20,13 @@ interface UserFormValues {
   fullName: string;
   email: string;
   dateOfBirth: any;
+  password: string;
 }
 
 const UserForm = () => {
   const [form] = Form.useForm<UserFormValues>();
 
-  const { setDataUser, setDatarganizations } = useUserForm();
+  const { setDataUser, setDatarganizations, setError } = useUserForm();
 
   const [searchOrg, setSearchOrg] = useState("");
   const [dataTable, setDataTable] = useState<OrganizationWithRole[]>([]);
@@ -101,7 +102,6 @@ const UserForm = () => {
 
     setDataSelect((prev) => [...prev, { label: org.name, value: org.id }]);
   };
-
   const handleFormChange = (_: unknown, allValues: UserFormValues) => {
     setDataUser({
       ...allValues,
@@ -129,23 +129,22 @@ const UserForm = () => {
     {
       title: "Chức vụ",
       width: 220,
-      render: (_: unknown, record: OrganizationWithRole) => (
-        <Select
-          value={record.role}
-          style={{ width: 160 }}
-          onChange={(value) => handleRoleChange(record.id, value)}
-          options={[
-            { value: "Owner", label: OrganizationMemberRole.OWNER },
-            { value: "Admin", label: OrganizationMemberRole.ADMIN },
-            {
-              value: "Project Manager",
-              label: OrganizationMemberRole.PROJECT_MANAGER,
-            },
-            { value: "Member", label: OrganizationMemberRole.MEMBER },
-            { value: "Guest", label: OrganizationMemberRole.GUEST },
-          ]}
-        />
-      ),
+      render: (_: unknown, record: OrganizationWithRole) => {
+        const options = Object.entries(OrganizationMemberRole).map(
+          ([key, value]) => ({
+            value: key.toLowerCase(),
+            label: value,
+          }),
+        );
+        return (
+          <Select
+            value={record.role}
+            style={{ width: 160 }}
+            onChange={(value) => handleRoleChange(record.id, value)}
+            options={options}
+          />
+        );
+      },
     },
     {
       title: "Hành động",
@@ -167,6 +166,7 @@ const UserForm = () => {
         form={form}
         layout="vertical"
         onValuesChange={handleFormChange}
+        onFinishFailed={() => setError(true)}
         className="grid grid-cols-1 gap-4 md:grid-cols-3"
       >
         <Form.Item
@@ -197,6 +197,18 @@ const UserForm = () => {
           rules={[{ required: true, message: "Vui lòng chọn ngày sinh" }]}
         >
           <DatePicker className="w-full" format="DD/MM/YYYY" />
+        </Form.Item>
+        <Form.Item
+          label="Mật khẩu"
+          name="password"
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng nhập mật khẩu",
+            },
+          ]}
+        >
+          <Input />
         </Form.Item>
       </Form>
 

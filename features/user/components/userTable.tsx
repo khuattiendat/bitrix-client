@@ -1,7 +1,7 @@
 "use client";
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
 import Heading from "@/shared/components/Heading";
-import { Card, Table, Avatar, Tag, Pagination, Button } from "antd";
+import { Card, Table, Pagination, Button } from "antd";
 import useSWR from "swr";
 import { userService } from "../services/user.service";
 import userTableColumns from "../table/user.column";
@@ -12,12 +12,12 @@ const UserTable = () => {
   const [filters, setFilters] = useQueryStates({
     search: parseAsString.withDefault(""),
     page: parseAsInteger.withDefault(1),
-    limit: parseAsInteger.withDefault(2),
+    limit: parseAsInteger.withDefault(10),
   });
   const cacheKey = `page=${filters.page}&limit=${filters.limit}&search=${filters.search}`;
 
   const { data, isLoading, error } = useSWR(cacheKey, (cacheKey) =>
-    userService.fetchUsers(cacheKey)
+    userService.fetchUsers(cacheKey),
   );
   const dataExam = data?.data;
   const metData = data?.meta;

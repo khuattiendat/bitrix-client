@@ -1,10 +1,12 @@
-import { Avatar, message, Popconfirm, Tag, Tooltip } from "antd";
+import { Avatar, Popconfirm, Tag, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { OrganizationUser, User } from "@/features/auth/types/auth.type";
 import { OrganizationMemberRole } from "@/shared/enums/organization.enum";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import Link from "next/link";
+import moment from "moment";
+import { userService } from "../services/user.service";
 
 export const userTableColumns: ColumnsType<User> = [
   {
@@ -34,7 +36,9 @@ export const userTableColumns: ColumnsType<User> = [
     title: "Ngày sinh",
     dataIndex: "dateOfBirth",
     key: "dateOfBirth",
-    render: (date: string | null) => date || "-",
+    render: (date: string | null) => (
+      <div>{date ? moment(date).format("DD/MM/YYYY") : "-"}</div>
+    ),
   },
   {
     title: "Công ty tham gia",
@@ -71,7 +75,7 @@ export const userTableColumns: ColumnsType<User> = [
             title="Xóa người dùng"
             description="Xác nhận xóa người dùng này?"
             onConfirm={() => {
-              console.log("Deleted", user.id);
+              userService.deleteUser(+user.id).then(() => {});
             }}
             onCancel={() => {
               console.log("Canceled");

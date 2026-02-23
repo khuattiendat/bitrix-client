@@ -4,6 +4,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "antd/dist/reset.css";
 import "./globals.css";
 import { NuqsAdapter } from "nuqs/adapters/react";
+import ToastProvider from "@/shared/components/ToastProvider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -33,7 +34,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AntdRegistry>
-          <NuqsAdapter>{children}</NuqsAdapter>
+          <NuqsAdapter>
+            <ToastProvider>{children}</ToastProvider>
+          </NuqsAdapter>
         </AntdRegistry>
       </body>
     </html>
