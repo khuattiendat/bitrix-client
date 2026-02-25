@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useAuthStore } from "../store/auth.store";
 import { authService } from "../services/auth.service";
 
@@ -10,12 +9,12 @@ export const useAuth = () => {
     accessToken,
     isAuthenticated,
     isLoading,
-    setAuth,
     setLoading,
     setUser,
     logout,
   } = useAuthStore();
 
+  // Chỉ dùng khi cần khởi tạo thủ công (vd: trong Provider)
   const fetchProfile = async () => {
     try {
       setLoading(true);
@@ -27,13 +26,13 @@ export const useAuth = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+
   return {
     user,
     accessToken,
     isAuthenticated,
     isLoading,
+    logout,
+    fetchProfile,
   };
 };

@@ -3,6 +3,7 @@ import {
   AllUsersResponse,
   CreateUserRequest,
   CreateUserResponse,
+  FindOneUserResponse,
 } from "../type/user.type";
 
 export const userService = {
@@ -22,5 +23,17 @@ export const userService = {
       data,
     );
     return response.data;
+  },
+  async updateUser(userId: number, data: CreateUserRequest) {
+    const response = await privateApi.put(`/api/users/${userId}`, data);
+    return response.data;
+  },
+  async findOneUser(userId: number) {
+    console.log(`Fetching user with ID: ${userId}`);
+
+    const response = await privateApi.get<FindOneUserResponse>(
+      `/api/users/${userId}`,
+    );
+    return response.data.data;
   },
 };

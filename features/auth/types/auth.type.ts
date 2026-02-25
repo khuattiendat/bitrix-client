@@ -9,6 +9,11 @@ export interface OrganizationUser {
   name: string;
   organizationRole: keyof typeof OrganizationMemberRole;
 }
+export enum userStatus {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+  PENDING = "pending",
+}
 export interface User {
   id: string;
   email: string;
@@ -16,6 +21,7 @@ export interface User {
   dateOfBirth: string | null;
   systemRole: string;
   avatar?: string;
+  status: userStatus;
   organizations: OrganizationUser[];
 }
 export interface AuthState {

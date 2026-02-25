@@ -36,7 +36,7 @@ export default function LoginForm() {
       }
       const payload: LoginPayload = {
         email: values.email,
-        password: "Abc@123456",
+        password: values.password,
       };
       const response: AuthResponse = await authService.login(payload);
       const { tokens, user } = response.data;

@@ -13,6 +13,6 @@ export const authService = {
   },
 
   async logout() {
-    return await privateApi.post("/auth/logout");
+    return await privateApi.post("/api/auth/logout");
   },
 };

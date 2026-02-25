@@ -6,10 +6,13 @@ import {
   MenuUnfoldOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme } from "antd";
+import { Avatar, Button, Dropdown, Layout, Menu } from "antd";
 import AdminProvider from "@/middleware/AdminProvider";
 import Link from "next/link";
-import { GoOrganization } from "react-icons/go";
+import { useAuth } from "@/features/auth";
+import { items } from "@/shared/lists/sideBarItem";
+import { authService } from "@/features/auth/services/auth.service";
+import { useRouter } from "next/navigation";
 
 const { Header, Content, Sider } = Layout;
 
@@ -32,20 +35,35 @@ const headerStyle: React.CSSProperties = {
   position: "sticky",
 };
 
-const items = [
-  {
-    key: "1",
-    icon: <UserOutlined />,
-    label: <Link href="/admin/users">Người dùng</Link>,
-  },
-  {
-    key: "2",
-    icon: <GoOrganization />,
-    label: <Link href="/admin/orgs">Tổ chức</Link>,
-  },
-];
 const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const router = useRouter();
+  const { user, logout } = useAuth();
+  const handleLogout = async () => {
+    await authService.logout();
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("auth-storage");
+    logout();
+    router.push("/login");
+  };
+
+  const dropdownItems = {
+    items: [
+      {
+        key: "profile",
+        label: <span className="font-medium">{user?.fullName}</span>,
+        disabled: true,
+      },
+      { type: "divider" as const },
+      {
+        key: "logout",
+        label: "Đăng xuất",
+        danger: true,
+        onClick: handleLogout,
+      },
+    ],
+  };
 
   return (
     <AdminProvider>
@@ -57,7 +75,12 @@ const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
           collapsed={collapsed}
         >
           <div className="h-16 text-2xl flex justify-between items-center w-full">
-            <div className="text-center w-full font-bold uppercase">Admin</div>
+            <Link
+              href="/admin"
+              className="text-center w-full font-bold uppercase"
+            >
+              Admin
+            </Link>
           </div>
           <Menu
             theme="light"
@@ -68,16 +91,32 @@ const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
         </Sider>
         <Layout>
           <Header style={headerStyle}>
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: "16px",
-                width: 64,
-                height: 64,
-              }}
-            />
+            <div className="flex items-center justify-between h-full px-4">
+              <Button
+                type="text"
+                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{ fontSize: "16px", width: 64, height: 64 }}
+              />
+
+              <Dropdown
+                menu={dropdownItems}
+                placement="bottomRight"
+                arrow
+                trigger={["click"]}
+              >
+                <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-3 py-1 rounded-lg transition-colors">
+                  <Avatar
+                    src={user?.avatar}
+                    icon={!user?.avatar && <UserOutlined />}
+                    className="bg-blue-500"
+                  />
+                  <span className="font-medium text-sm hidden md:block">
+                    {user?.fullName}
+                  </span>
+                </div>
+              </Dropdown>
+            </div>
           </Header>
           <Content className="p-4">{children}</Content>
         </Layout>
@@ -85,4 +124,5 @@ const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
     </AdminProvider>
   );
 };
+
 export default LayoutAdmin;

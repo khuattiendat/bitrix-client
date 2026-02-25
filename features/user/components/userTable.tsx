@@ -4,7 +4,7 @@ import Heading from "@/shared/components/Heading";
 import { Card, Table, Pagination, Button } from "antd";
 import useSWR from "swr";
 import { userService } from "../services/user.service";
-import userTableColumns from "../table/user.column";
+import { userTableColumns } from "../table/user.column";
 import InputSearchV2 from "@/shared/components/InputSearch";
 import Link from "next/link";
 
@@ -14,10 +14,11 @@ const UserTable = () => {
     page: parseAsInteger.withDefault(1),
     limit: parseAsInteger.withDefault(10),
   });
-  const cacheKey = `page=${filters.page}&limit=${filters.limit}&search=${filters.search}`;
 
-  const { data, isLoading, error } = useSWR(cacheKey, (cacheKey) =>
-    userService.fetchUsers(cacheKey),
+  const { data, error, isLoading } = useSWR(
+    ["list-users", filters.page, filters.limit, filters.search],
+    ([_, page, limit, search]) =>
+      userService.fetchUsers(`page=${page}&limit=${limit}&search=${search}`),
   );
   const dataExam = data?.data;
   const metData = data?.meta;

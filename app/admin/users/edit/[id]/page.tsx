@@ -1,4 +1,10 @@
+import EditUser from "@/features/user/components/EditUser";
+
 const EditUserPage = () => {
-  return <div>Edit User Page</div>;
+  return (
+    <div>
+      <EditUser />
+    </div>
+  );
 };
 export default EditUserPage;

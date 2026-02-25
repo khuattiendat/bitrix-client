@@ -7,32 +7,35 @@ import {
 } from "@/features/organization/types/organization.type";
 import useDebounceValue from "@/shared/hooks/useDebounceValue";
 import { DatePicker, Form, Input, Select, Table } from "antd";
-import { useEffect, useState } from "react";
-import { IoMdClose } from "react-icons/io";
+import { useEffect, useState, useCallback, useRef } from "react";
 import useSWR from "swr";
-import useUserForm from "../hooks/useUserForm";
+import dayjs, { Dayjs } from "dayjs";
+import { CreateUserRequest } from "../type/user.type";
+import { getOrganizationTableColumns } from "../table/user.column";
 
-interface OrganizationWithRole extends Organization {
+export interface OrganizationWithRole extends Organization {
   role: OrganizationMemberRole;
 }
 
-interface UserFormValues {
-  fullName: string;
-  email: string;
-  dateOfBirth: any;
-  password: string;
+interface UserFormProps {
+  userData: CreateUserRequest;
+  setUserData: (data: CreateUserRequest) => void;
 }
 
-const UserForm = () => {
-  const [form] = Form.useForm<UserFormValues>();
-
-  const { setDataUser, setDatarganizations, setError } = useUserForm();
+const UserForm = ({ userData, setUserData }: UserFormProps) => {
+  const [form] = Form.useForm<
+    Omit<CreateUserRequest, "dateOfBirth"> & { dateOfBirth: Dayjs | null }
+  >();
 
   const [searchOrg, setSearchOrg] = useState("");
   const [dataTable, setDataTable] = useState<OrganizationWithRole[]>([]);
   const [dataSelect, setDataSelect] = useState<
     { label: string; value: number }[]
   >([]);
+
+  // Dùng ref để tránh stale closure, không gây re-render
+  const userDataRef = useRef(userData);
+  const isInitialized = useRef(false);
 
   const debouncedSearchOrg = useDebounceValue(searchOrg, 500);
 
@@ -42,123 +45,123 @@ const UserForm = () => {
       organizationService.getAllOrganizations(`search=${keyword}`),
   );
 
+  // Chỉ khởi tạo form + dataTable 1 lần duy nhất
+  useEffect(() => {
+    if (!userData || isInitialized.current) return;
+    isInitialized.current = true;
+    userDataRef.current = userData;
+
+    form.setFieldsValue({
+      fullName: userData.fullName || "",
+      email: userData.email || "",
+      dateOfBirth: userData.dateOfBirth ? dayjs(userData.dateOfBirth) : null,
+      password: userData.password || "",
+    });
+
+    setDataTable(
+      userData.organizations.map((org) => ({
+        id: org.id,
+        name: org.name,
+        role: org.organizationRole as OrganizationMemberRole,
+      })),
+    );
+  }, [userData, form]);
+
+  // Cập nhật dataSelect khi data SWR thay đổi
   useEffect(() => {
     if (!data?.data) return;
-
+    const selectedOrgIds = dataTable.map((org) => org.id);
     setDataSelect(
-      data.data.map((org: Organization) => ({
-        label: org.name,
-        value: org.id,
-      })),
+      data.data
+        .filter((org: Organization) => !selectedOrgIds.includes(org.id))
+        .map((org: Organization) => ({ label: org.name, value: org.id })),
     );
-  }, [data]);
+  }, [data, dataTable]);
 
-  const syncOrganizations = (orgs: OrganizationWithRole[]) => {
-    setDatarganizations(
-      orgs.map((org) => ({
-        id: org.id,
-        organizationRole: org.role,
-      })),
-    );
-  };
+  const syncOrganizationsToUserData = useCallback(
+    (orgs: OrganizationWithRole[]) => {
+      // Dùng ref thay vì userData trực tiếp để tránh stale closure
+      userDataRef.current = {
+        ...userDataRef.current,
+        organizations: orgs.map((org) => ({
+          id: org.id,
+          name: org.name || "",
+          organizationRole: org.role,
+        })),
+      };
+      setUserData(userDataRef.current);
+    },
+    [setUserData],
+  );
 
-  const handleSelectOrg = (value: number) => {
-    const selectedOrg = data?.data.find(
-      (org: Organization) => org.id === value,
-    );
-    if (!selectedOrg) return;
-
-    setDataTable((prev) => {
-      if (prev.some((org) => org.id === value)) return prev;
-
-      const updated = [
-        ...prev,
-        { ...selectedOrg, role: "member" as OrganizationMemberRole },
-      ];
-
-      syncOrganizations(updated);
-      return updated;
-    });
-
-    setDataSelect((prev) => prev.filter((o) => o.value !== value));
-  };
-
-  const handleRoleChange = (orgId: number, role: OrganizationMemberRole) => {
-    setDataTable((prev) => {
-      const updated = prev.map((org) =>
-        org.id === orgId ? { ...org, role } : org,
+  const handleSelectOrg = useCallback(
+    (value: number) => {
+      const selectedOrg = data?.data.find(
+        (org: Organization) => org.id === value,
       );
-      syncOrganizations(updated);
-      return updated;
-    });
-  };
+      if (!selectedOrg) return;
 
-  const handleRemoveOrg = (org: OrganizationWithRole) => {
-    setDataTable((prev) => {
-      const updated = prev.filter((o) => o.id !== org.id);
-      syncOrganizations(updated);
-      return updated;
-    });
+      setDataTable((prev) => {
+        if (prev.some((org) => org.id === value)) return prev;
+        const updated = [
+          ...prev,
+          { ...selectedOrg, role: "member" as OrganizationMemberRole },
+        ];
+        syncOrganizationsToUserData(updated);
+        return updated;
+      });
+    },
+    [data, syncOrganizationsToUserData],
+  );
 
-    setDataSelect((prev) => [...prev, { label: org.name, value: org.id }]);
-  };
-  const handleFormChange = (_: unknown, allValues: UserFormValues) => {
-    setDataUser({
-      ...allValues,
-      dateOfBirth: allValues.dateOfBirth
-        ? allValues.dateOfBirth.format("YYYY-MM-DD")
-        : null,
-    });
-  };
-
-  const columns = [
-    {
-      title: "STT",
-      width: 60,
-      render: (_: unknown, __: unknown, index: number) => index + 1,
-    },
-    {
-      title: "Tên tổ chức",
-      dataIndex: "name",
-    },
-    {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      render: (v: string) => v || "-",
-    },
-    {
-      title: "Chức vụ",
-      width: 220,
-      render: (_: unknown, record: OrganizationWithRole) => {
-        const options = Object.entries(OrganizationMemberRole).map(
-          ([key, value]) => ({
-            value: key.toLowerCase(),
-            label: value,
-          }),
+  const handleRoleChange = useCallback(
+    (orgId: number, role: OrganizationMemberRole) => {
+      setDataTable((prev) => {
+        const updated = prev.map((org) =>
+          org.id === orgId ? { ...org, role } : org,
         );
-        return (
-          <Select
-            value={record.role}
-            style={{ width: 160 }}
-            onChange={(value) => handleRoleChange(record.id, value)}
-            options={options}
-          />
-        );
+        syncOrganizationsToUserData(updated);
+        return updated;
+      });
+    },
+    [syncOrganizationsToUserData],
+  );
+
+  const handleRemoveOrg = useCallback(
+    (org: OrganizationWithRole) => {
+      setDataTable((prev) => {
+        const updated = prev.filter((o) => o.id !== org.id);
+        syncOrganizationsToUserData(updated);
+        return updated;
+      });
+    },
+    [syncOrganizationsToUserData],
+  );
+
+  const handleFormChange = useCallback(
+    (
+      _: unknown,
+      allValues: Omit<CreateUserRequest, "dateOfBirth"> & {
+        dateOfBirth: Dayjs | null;
       },
+    ) => {
+      // Dùng ref để tránh tạo closure mới mỗi render
+      userDataRef.current = {
+        ...userDataRef.current,
+        ...allValues,
+        dateOfBirth: allValues.dateOfBirth
+          ? allValues.dateOfBirth.toISOString()
+          : null,
+      };
+      setUserData(userDataRef.current);
     },
-    {
-      title: "Hành động",
-      width: 80,
-      render: (_: unknown, record: OrganizationWithRole) => (
-        <button
-          onClick={() => handleRemoveOrg(record)}
-          className="text-red-600 hover:text-red-800 cursor-pointer"
-        >
-          <IoMdClose size={18} />
-        </button>
-      ),
-    },
-  ];
+    [setUserData],
+  );
+
+  const columns = getOrganizationTableColumns(
+    handleRoleChange,
+    handleRemoveOrg,
+  );
 
   return (
     <div className="space-y-6">
@@ -166,7 +169,6 @@ const UserForm = () => {
         form={form}
         layout="vertical"
         onValuesChange={handleFormChange}
-        onFinishFailed={() => setError(true)}
         className="grid grid-cols-1 gap-4 md:grid-cols-3"
       >
         <Form.Item
@@ -196,19 +198,21 @@ const UserForm = () => {
           name="dateOfBirth"
           rules={[{ required: true, message: "Vui lòng chọn ngày sinh" }]}
         >
-          <DatePicker className="w-full" format="DD/MM/YYYY" />
+          <DatePicker
+            className="w-full"
+            format="DD/MM/YYYY"
+            disabledDate={(current) =>
+              current && current > dayjs().endOf("day")
+            }
+          />
         </Form.Item>
+
         <Form.Item
           label="Mật khẩu"
           name="password"
-          rules={[
-            {
-              required: true,
-              message: "Vui lòng nhập mật khẩu",
-            },
-          ]}
+          rules={[{ required: true, message: "Vui lòng nhập mật khẩu" }]}
         >
-          <Input />
+          <Input.Password />
         </Form.Item>
       </Form>
 

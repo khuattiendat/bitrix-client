@@ -8,7 +8,13 @@ import { ReactNode, useEffect } from "react";
 
 const AdminProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
-  const { isLoading, user, isAuthenticated } = useAuth();
+  const { isLoading, user, isAuthenticated, fetchProfile } = useAuth();
+
+  // Fetch profile 1 lần duy nhất tại đây, không trong useAuth
+  useEffect(() => {
+    fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;

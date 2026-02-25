@@ -1,4 +1,10 @@
+import OrgnizationTable from "@/features/organization/components/OrganizationTable";
+
 const Page = () => {
-  return <div className="h-dvh">org Management Page</div>;
+  return (
+    <div className="h-dvh">
+      <OrgnizationTable />
+    </div>
+  );
 };
 export default Page;
