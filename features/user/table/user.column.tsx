@@ -94,12 +94,13 @@ export const userTableColumns: ColumnsType<User> = [
   {
     title: "Công ty tham gia",
     dataIndex: "organizations",
+    width: 300,
     key: "organizations",
     render: (organizations: OrganizationUser[]) =>
       !organizations?.length ? (
         "-"
       ) : (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-2">
           {organizations.map((org) => (
             <Tag key={org.id} color="blue">
               {org.name} ({OrganizationMemberRole[org.organizationRole]})

@@ -3,12 +3,18 @@ import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
 import Heading from "@/shared/components/Heading";
 import InputSearchV2 from "@/shared/components/InputSearch";
 import { Button, Card, Pagination, Table } from "antd";
-import Link from "next/link";
-import useSWR from "swr";
-import { organizationService } from "../services/organization.service";
-import { OrganizationTableColumns } from "../table/organization.table";
+import useSWR, { mutate } from "swr";
+import { organizationService } from "@/features/organization/services/organization.service";
+import { ChangeEvent, useState } from "react";
+import { Organization } from "@/features/organization/types/organization.type";
+import { toast } from "react-toastify";
+import ModalCreateOrganization from "../modal/ModalCreateOrganization";
+import { getOrganizationTableColumns } from "../../table/organization.table";
 
 const OrgnizationTable = () => {
+  const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [dataSelected, setDataSelected] = useState<Organization>();
+  const [isEdit, setIsEdit] = useState(false);
   const [filters, setFilters] = useQueryStates({
     search: parseAsString.withDefault(""),
     page: parseAsInteger.withDefault(1),
@@ -23,21 +29,40 @@ const OrgnizationTable = () => {
   );
   const dataOrg = data?.data;
   const metData = data?.meta;
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFilters({ ...filters, search: value, page: 1 });
   };
   if (error) {
     return <div>Error loading users.</div>;
   }
+  const OrganizationTableColumns = getOrganizationTableColumns({
+    onDelete: async (id) => {
+      await organizationService.deleteOrganization(parseInt(id));
+      setDataSelected(undefined);
+      setIsEdit(false);
+      toast.success("Xóa tổ chức thành công");
+      mutate(
+        (key: unknown) => Array.isArray(key) && key[0] === "list-orgs",
+        undefined,
+        { revalidate: true },
+      );
+    },
+    onEdit: (record) => {
+      setDataSelected(record);
+      setIsEdit(true);
+      setOpenModalCreate(true);
+    },
+  });
+
   return (
     <div>
       <Card>
         <div className="flex justify-between items-center">
           <Heading title="Danh sách tổ chức" />
-          <Link href="/admin/users/create">
-            <Button type="primary">Thêm tổ chức</Button>
-          </Link>
+          <Button type="primary" onClick={() => setOpenModalCreate(true)}>
+            Thêm tổ chức
+          </Button>
         </div>
         <div className="mb-4">
           <InputSearchV2 onChange={handleSearchChange} classInput="w-fit!" />
@@ -61,6 +86,16 @@ const OrgnizationTable = () => {
           />
         </div>
       </Card>
+      {openModalCreate && (
+        <ModalCreateOrganization
+          isOpen={openModalCreate}
+          onClose={() => setOpenModalCreate(false)}
+          data={dataSelected}
+          isEdit={isEdit}
+          setSelectData={setDataSelected}
+          setIsEdit={setIsEdit}
+        />
+      )}
     </div>
   );
 };

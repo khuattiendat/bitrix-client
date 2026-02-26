@@ -48,6 +48,7 @@ export default function LoginForm() {
         router.replace("/admin");
         return;
       }
+
       if (!organizations.length) {
         setError("Tài khoản của bạn chưa được gán vào tổ chức nào.");
         setLoading(false);

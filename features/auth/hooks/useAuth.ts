@@ -14,7 +14,6 @@ export const useAuth = () => {
     logout,
   } = useAuthStore();
 
-  // Chỉ dùng khi cần khởi tạo thủ công (vd: trong Provider)
   const fetchProfile = async () => {
     try {
       setLoading(true);

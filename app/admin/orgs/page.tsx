@@ -1,4 +1,4 @@
-import OrgnizationTable from "@/features/organization/components/OrganizationTable";
+import OrgnizationTable from "@/features/organization/components/admin/OrganizationTable";
 
 const Page = () => {
   return (

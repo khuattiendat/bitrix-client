@@ -62,6 +62,7 @@ const UserForm = ({ userData, setUserData }: UserFormProps) => {
       userData.organizations.map((org) => ({
         id: org.id,
         name: org.name,
+        status: "active",
         role: org.organizationRole as OrganizationMemberRole,
       })),
     );
@@ -73,7 +74,10 @@ const UserForm = ({ userData, setUserData }: UserFormProps) => {
     const selectedOrgIds = dataTable.map((org) => org.id);
     setDataSelect(
       data.data
-        .filter((org: Organization) => !selectedOrgIds.includes(org.id))
+        .filter(
+          (org: Organization) =>
+            !selectedOrgIds.includes(org.id) && org.status === "active",
+        )
         .map((org: Organization) => ({ label: org.name, value: org.id })),
     );
   }, [data, dataTable]);

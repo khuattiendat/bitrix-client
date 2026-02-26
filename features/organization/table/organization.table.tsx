@@ -3,12 +3,17 @@ import { ColumnsType } from "antd/es/table";
 import { Popconfirm, Tag, Tooltip } from "antd";
 import { MdDelete } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
-import { toast } from "react-toastify";
-import { mutate } from "swr";
-import { organizationService } from "../services/organization.service";
 import Link from "next/link";
 
-export const OrganizationTableColumns: ColumnsType<Organization> = [
+interface OrganizationTableColumnsProps {
+  onDelete?: (id: string) => void;
+  onEdit?: (record: Organization) => void;
+}
+
+export const getOrganizationTableColumns = ({
+  onDelete,
+  onEdit,
+}: OrganizationTableColumnsProps = {}): ColumnsType<Organization> => [
   {
     title: "STT",
     width: 60,
@@ -48,9 +53,18 @@ export const OrganizationTableColumns: ColumnsType<Organization> = [
     render: (_: unknown, record: Organization) => (
       <div className="flex items-center justify-center gap-2">
         <Tooltip title="Chỉnh sửa">
-          <Link href={`/admin/orgs/edit/${record.id}`}>
-            <FaRegEdit size={20} className="text-blue-600 cursor-pointer" />
-          </Link>
+          {onEdit ? (
+            <div
+              className="text-blue-600 cursor-pointer"
+              onClick={() => onEdit(record)}
+            >
+              <FaRegEdit size={20} />
+            </div>
+          ) : (
+            <Link href={`/admin/orgs/edit/${record.id}`}>
+              <FaRegEdit size={20} className="text-blue-600 cursor-pointer" />
+            </Link>
+          )}
         </Tooltip>
 
         <Tooltip title="Xóa tổ chức">
@@ -60,7 +74,7 @@ export const OrganizationTableColumns: ColumnsType<Organization> = [
             okText="Đồng ý"
             cancelText="Hủy bỏ"
             onConfirm={() => {
-              console.log("Delete organization with id:", record.id);
+              onDelete?.(record.id);
             }}
           >
             <div className="text-red-600 cursor-pointer">
