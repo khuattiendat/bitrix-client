@@ -22,11 +22,6 @@ const processQueue = (error: any) => {
 privateApi.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      window.location.href = "/login";
-      return config;
-    }
-
     if (accessToken) {
       config.headers = config.headers ?? {};
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -34,7 +29,7 @@ privateApi.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 privateApi.interceptors.response.use(
@@ -74,7 +69,6 @@ privateApi.interceptors.response.use(
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
 
-        window.location.href = "/login";
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
@@ -82,5 +76,5 @@ privateApi.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );

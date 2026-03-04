@@ -1,10 +1,7 @@
 "use client";
 
 import { organizationService } from "@/features/organization/services/organization.service";
-import {
-  Organization,
-  OrganizationMemberRole,
-} from "@/features/organization/types/organization.type";
+import { Organization } from "@/features/organization/types/organization.type";
 import useDebounceValue from "@/shared/hooks/useDebounceValue";
 import { DatePicker, Form, Input, Select, Table } from "antd";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -12,6 +9,7 @@ import useSWR from "swr";
 import dayjs, { Dayjs } from "dayjs";
 import { CreateUserRequest } from "../type/user.type";
 import { getOrganizationTableColumns } from "../table/user.column";
+import { OrganizationMemberRole } from "@/shared/enums/organization.enum";
 
 export interface OrganizationWithRole extends Organization {
   role: OrganizationMemberRole;

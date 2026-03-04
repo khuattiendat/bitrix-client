@@ -38,7 +38,7 @@ const OrgnizationTable = () => {
   }
   const OrganizationTableColumns = getOrganizationTableColumns({
     onDelete: async (id) => {
-      await organizationService.deleteOrganization(parseInt(id));
+      await organizationService.deleteOrganization(id);
       setDataSelected(undefined);
       setIsEdit(false);
       toast.success("Xóa tổ chức thành công");

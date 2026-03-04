@@ -1,3 +1,4 @@
+import { OrganizationMemberRole } from "@/shared/enums/organization.enum";
 import { MetaData } from "@/shared/type/comon.type";
 
 export interface Organization {
@@ -15,12 +16,8 @@ export interface AllOrganizationsResponse {
     meta: MetaData;
   };
 }
-export enum OrganizationMemberRole {
-  OWNER = "Chủ sở hữu", // Organization owner with full permissions
-  ADMIN = "admin", // Organization admin with elevated permissions
-  PROJECT_MANAGER = "Quản lý dự án", // Project manager with project-level permissions
-  MEMBER = "Thành viên", // Regular member with standard permissions
-  GUEST = "Khách", // Guest member with limited permissions
+export interface UserOrganization extends Organization {
+  organizationRole: OrganizationMemberRole;
 }
 export interface CreateOrganizationRequest {
   name: string;
@@ -29,8 +26,8 @@ export interface CreateOrganizationRequest {
 }
 
 export interface OrganizationStore {
-  currentOrganization: Organization | null;
-  setCurrentOrganization: (organization: Organization | null) => void;
+  currentOrganization: UserOrganization | null;
+  setCurrentOrganization: (organization: UserOrganization | null) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }

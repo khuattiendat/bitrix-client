@@ -1,10 +1,12 @@
 import { privateApi } from "@/lib";
 import {
   AllUsersResponse,
+  CheckOrganizationMembershipResponse,
   CreateUserRequest,
   CreateUserResponse,
   FindOneUserResponse,
 } from "../type/user.type";
+import { UserOrganization } from "@/features/organization/types/organization.type";
 
 export const userService = {
   async fetchUsers(params: string) {
@@ -33,6 +35,12 @@ export const userService = {
 
     const response = await privateApi.get<FindOneUserResponse>(
       `/api/users/${userId}`,
+    );
+    return response.data.data;
+  },
+  async checkOrganizationMembership(orgId: number) {
+    const response = await privateApi.get<CheckOrganizationMembershipResponse>(
+      `/api/users/check-organization/${orgId}`,
     );
     return response.data.data;
   },

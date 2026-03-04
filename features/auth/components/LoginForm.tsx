@@ -19,7 +19,7 @@ const { Title, Text } = Typography;
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { setAuth } = useAuthStore();
+  const { setAuth, user, accessToken } = useAuthStore();
   const router = useRouter();
   const [showModalChooseOrg, setShowModalChooseOrg] = useState(false);
   const [organizations, setOrganizations] = useState<OrganizationUser[]>([]);
@@ -29,22 +29,23 @@ export default function LoginForm() {
     setError("");
 
     try {
-      if (!values.email || !values.password) {
+      const { email, password } = values;
+      if (!email?.trim() || !password?.trim()) {
         setError("Vui lòng nhập email và mật khẩu.");
         setLoading(false);
         return;
       }
       const payload: LoginPayload = {
-        email: values.email,
-        password: values.password,
+        email: email?.trim(),
+        password: password?.trim(),
       };
       const response: AuthResponse = await authService.login(payload);
       const { tokens, user } = response.data;
       localStorage.setItem("accessToken", tokens.accessToken);
       localStorage.setItem("refreshToken", tokens.refreshToken);
-      setAuth(user, tokens.accessToken);
       const { systemRole, organizations } = user;
       if (systemRole === SYSTEM_ROLE.ADMIN) {
+        setAuth(user, tokens.accessToken, null);
         router.replace("/admin");
         return;
       }
@@ -58,6 +59,7 @@ export default function LoginForm() {
         setShowModalChooseOrg(true);
         setOrganizations(organizations);
       } else {
+        setAuth(user, tokens.accessToken, organizations[0].id);
         router.replace(`/org/${organizations[0].id}`);
       }
     } catch (err) {
@@ -67,6 +69,7 @@ export default function LoginForm() {
     }
   };
   const onSelectOrganization = (organizationId: number) => {
+    setAuth(user!, accessToken!, organizationId);
     router.push(`/org/${organizationId}`);
   };
 

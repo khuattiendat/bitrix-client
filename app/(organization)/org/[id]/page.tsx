@@ -2,7 +2,7 @@ import MainOrganization from "@/features/organization/components/client/MainOrga
 
 const Page = () => {
   return (
-    <div className="h-dvh">
+    <div className="overflow-y-auto h-dvh flex-1">
       <MainOrganization />
     </div>
   );

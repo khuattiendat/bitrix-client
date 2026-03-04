@@ -29,9 +29,10 @@ export interface AuthState {
   accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  orgId: number | null;
 
   setUser: (user: User) => void;
-  setAuth: (user: User, accessToken: string) => void;
+  setAuth: (user: User, accessToken: string, orgId: number | null) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
 }

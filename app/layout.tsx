@@ -5,6 +5,7 @@ import "antd/dist/reset.css";
 import "./globals.css";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import ToastProvider from "@/shared/components/ToastProvider";
+import AuthProvider from "@/middleware/AuthProvider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,7 +36,9 @@ export default function RootLayout({
       >
         <AntdRegistry>
           <NuqsAdapter>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </ToastProvider>
           </NuqsAdapter>
         </AntdRegistry>
       </body>

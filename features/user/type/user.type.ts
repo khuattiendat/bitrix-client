@@ -1,4 +1,5 @@
 import { User } from "@/features/auth/types/auth.type";
+import { UserOrganization } from "@/features/organization/types/organization.type";
 import { MetaData } from "@/shared/type/comon.type";
 import { Dayjs } from "dayjs";
 
@@ -20,7 +21,7 @@ export interface CreateUserRequest {
   password: string;
   organizations: OrganizationUser[];
 }
-export interface UpdateUserRequest extends CreateUserRequest {}
+export type UpdateUserRequest = CreateUserRequest;
 export interface CreateUserResponse {
   data: User;
   message: string;
@@ -28,4 +29,7 @@ export interface CreateUserResponse {
 }
 export interface FindOneUserResponse {
   data: CreateUserRequest;
+}
+export interface CheckOrganizationMembershipResponse {
+  data: UserOrganization;
 }

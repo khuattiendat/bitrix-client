@@ -1,7 +1,7 @@
 export enum OrganizationMemberRole {
-  owner = "Chủ sở hữu",
-  admin = "Admin",
-  project_manager = "Quản lý dự án",
-  member = "Thành viên",
-  guest = "khách mời",
+  OWNER = "owner",
+  ADMIN = "admin",
+  PROJECT_MANAGER = "project_manager",
+  MEMNER = "member",
+  GUEST = "guest",
 }

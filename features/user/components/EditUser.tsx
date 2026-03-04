@@ -13,7 +13,6 @@ import { toast } from "react-toastify";
 const EditUser = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
-  const [disableButton, setDisableButton] = useState(false);
   const [userData, setuserData] = useState<UpdateUserRequest>({
     fullName: "",
     email: "",
@@ -22,10 +21,9 @@ const EditUser = () => {
     organizations: [],
   });
 
-  if (!id) return <div>Invalid user ID</div>;
   const { data, error, isLoading, isValidating } = useSWR(
     `${id}`,
-    (id) => userService.findOneUser(id as unknown as number),
+    async (id) => userService.findOneUser(id as unknown as number),
     {
       revalidateOnFocus: false,
       onSuccess: (data) => {
@@ -34,7 +32,7 @@ const EditUser = () => {
           email: data.email,
           dateOfBirth: data.dateOfBirth,
           password: "",
-          organizations: data.organizations.map((org: any) => ({
+          organizations: data.organizations.map((org) => ({
             id: org.id,
             name: org.name,
             organizationRole: org.organizationRole,
@@ -43,6 +41,14 @@ const EditUser = () => {
       },
     },
   );
+  if (!id) return <div>Invalid user ID</div>;
+  if (isLoading || isValidating)
+    return (
+      <div>
+        <LoadingAuth size="small" />
+      </div>
+    );
+  if (error) return <div>Error loading user data</div>;
 
   const handleSubmit = async () => {
     try {
@@ -63,22 +69,12 @@ const EditUser = () => {
       setLoading(false);
     }
   };
-  if (isLoading || isValidating)
-    return (
-      <div>
-        <LoadingAuth size="small" />
-      </div>
-    );
-  if (error) return <div>Error loading user data</div>;
+
   return (
     <Card>
       <div className="flex justify-between">
         <Heading title="Chỉnh sửa tài khoản" />
-        <Button
-          type="primary"
-          onClick={handleSubmit}
-          disabled={disableButton || loading}
-        >
+        <Button type="primary" onClick={handleSubmit} disabled={loading}>
           Lưu
         </Button>
       </div>

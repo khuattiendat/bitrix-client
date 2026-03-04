@@ -6,7 +6,7 @@ import { FaRegEdit } from "react-icons/fa";
 import Link from "next/link";
 
 interface OrganizationTableColumnsProps {
-  onDelete?: (id: string) => void;
+  onDelete?: (id: number) => void;
   onEdit?: (record: Organization) => void;
 }
 
@@ -74,7 +74,7 @@ export const getOrganizationTableColumns = ({
             okText="Đồng ý"
             cancelText="Hủy bỏ"
             onConfirm={() => {
-              onDelete?.(record.id);
+              onDelete?.(record?.id);
             }}
           >
             <div className="text-red-600 cursor-pointer">

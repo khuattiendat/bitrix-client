@@ -16,6 +16,7 @@ import { OrganizationWithRole } from "../components/UserForm";
 import { IoMdClose } from "react-icons/io";
 import { mutate } from "swr";
 import { useAuth } from "@/features/auth";
+import { getUserRoleInOrganizationText } from "@/shared/lib/fn";
 
 const ActionColumn = ({ user }: { user: User }) => {
   const { user: userLoginted } = useAuth();
@@ -103,7 +104,11 @@ export const userTableColumns: ColumnsType<User> = [
         <div className="flex flex-wrap gap-2">
           {organizations.map((org) => (
             <Tag key={org.id} color="blue">
-              {org.name} ({OrganizationMemberRole[org.organizationRole]})
+              {org.name} (
+              {getUserRoleInOrganizationText(
+                org.organizationRole as OrganizationMemberRole,
+              )}
+              )
             </Tag>
           ))}
         </div>

@@ -20,6 +20,8 @@ export const useAuth = () => {
       const { data } = await authService.getProfile();
       setUser(data);
     } catch (error) {
+      console.log("Error fetching profile:", error);
+
       logout();
     } finally {
       setLoading(false);

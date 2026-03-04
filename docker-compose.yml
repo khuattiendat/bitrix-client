@@ -1,0 +1,7 @@
+services:
+  bitrix-client:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      BASE_URL_SERVER: ${BASE_URL_SERVER}

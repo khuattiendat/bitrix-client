@@ -8,14 +8,16 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       isAuthenticated: false,
       isLoading: true,
+      orgId: null,
       setUser: (user: User) => {
         set({ user, isAuthenticated: true });
       },
 
-      setAuth: (user, accessToken) =>
+      setAuth: (user, accessToken, orgId) =>
         set({
           user,
           accessToken: accessToken,
+          orgId: orgId,
           isAuthenticated: true,
         }),
 
@@ -34,7 +36,8 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         accessToken: state.accessToken,
         isAuthenticated: state.isAuthenticated,
+        orgId: state.orgId,
       }),
-    }
-  )
+    },
+  ),
 );
