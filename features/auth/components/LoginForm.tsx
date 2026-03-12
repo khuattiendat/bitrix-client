@@ -13,6 +13,7 @@ import { useAuthStore } from "../store/auth.store";
 import { useRouter } from "next/navigation";
 import ModalChooseOrganization from "./ModalChooseOrganization";
 import Image from "next/image";
+import Link from "next/link";
 
 const { Title, Text } = Typography;
 
@@ -146,12 +147,12 @@ export default function LoginForm() {
                     <span className="text-sm text-gray-600">Remember me</span>
                   </Checkbox>
                 </Form.Item>
-                <a
-                  href="#"
+                <Link
+                  href="/forgot-password"
                   className="text-sm font-medium text-blue-600 hover:text-blue-700"
                 >
                   Forgot password?
-                </a>
+                </Link>
               </div>
 
               <Form.Item className="mb-4!">

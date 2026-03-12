@@ -15,4 +15,17 @@ export const authService = {
   async logout() {
     return await privateApi.post("/api/auth/logout");
   },
+  async forgotPassword(email: string) {
+    const { data } = await publicApi.post("/api/auth/forgot-password", {
+      email,
+    });
+    return data;
+  },
+  async resetPassword(token: string, newPassword: string) {
+    const { data } = await publicApi.post("/api/auth/reset-password", {
+      token,
+      newPassword,
+    });
+    return data;
+  },
 };
